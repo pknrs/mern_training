@@ -43,24 +43,28 @@ app.post("/todos", async (req, res) => {
   }
 });
 
-// Get all todos with filter & sort
+// Get all todos with pagination
 app.get("/todos", async (req, res) => {
   try {
-    const { completed, sort } = req.query;
+    let { page = 1, limit = 5 } = req.query;
 
-    // Filter
-    let filter = {};
-    if (completed !== undefined) {
-      filter.completed = completed === "true";
-    }
+    page = parseInt(page);
+    limit = parseInt(limit);
 
-    // Sort
-    let sortOption = { createdAt: -1 };
-    if (sort === "asc") sortOption = { createdAt: 1 };
-    if (sort === "desc") sortOption = { createdAt: -1 };
+    const skip = (page - 1) * limit;
 
-    const todos = await Todo.find(filter).sort(sortOption);
-    res.json(todos);
+    const todos = await Todo.find()
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+    const total = await Todo.countDocuments();
+
+    res.json({
+      total,
+      page,
+      pages: Math.ceil(total / limit),
+      todos,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
