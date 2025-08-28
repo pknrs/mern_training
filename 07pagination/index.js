@@ -18,13 +18,10 @@ mongoose
 
 // Schemas & Models
 // Todo Schema
-const todoSchema = new mongoose.Schema(
-  {
-    text: { type: String, required: true },
-    completed: { type: Boolean, default: false },
-  },
-  { timestamps: true }
-);
+const todoSchema = new mongoose.Schema({
+  text: { type: String, required: true },
+  completed: { type: Boolean, default: false },
+});
 
 const Todo = mongoose.model("Todo", todoSchema);
 
@@ -51,10 +48,7 @@ app.get("/todos", async (req, res) => {
 
     const skip = (page - 1) * limit;
 
-    const todos = await Todo.find()
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 });
+    const todos = await Todo.skip(skip).limit(limit);
     const total = await Todo.countDocuments();
 
     res.json({

@@ -18,90 +18,88 @@ mongoose
   .catch((err) => console.error("MongoDB connection error:", err));
 
 // Mongoose Schema & Model
-const itemSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  description: { type: String, required: true },
+const todoSchema = new mongoose.Schema({
+  text: { type: String, required: true },
+  completed: { type: Boolean, default: false },
 });
 
-const Item = mongoose.model("Item", itemSchema);
+const Todo = mongoose.model("Todo", todoSchema);
 
 // Routes
-// Create item
-app.post("/items", async (req, res) => {
+// Create todo
+app.post("/todos", async (req, res) => {
   try {
-    const { name, description } = req.body;
+    const { text, completed } = req.body;
 
-    if (!name || !description) {
-      return res
-        .status(400)
-        .json({ error: "Name and description are required." });
+    if (!text) {
+      return res.status(400).json({ error: "Text is required." });
     }
 
-    const newItem = new Item({ name, description });
-    await newItem.save();
+    const newTodo = new Todo({ text, completed });
+    await newTodo.save();
 
-    res.status(201).json(newItem);
+    res.status(201).json(newTodo);
   } catch (err) {
-    res.status(500).json({ error: "Failed to create item." });
+    res.status(500).json({ error: "Failed to create todo." });
   }
 });
 
-// Get all items
-app.get("/items", async (req, res) => {
+// Get all todos
+app.get("/todos", async (req, res) => {
   try {
-    const items = await Item.find();
-    res.json(items);
+    const todos = await Todo.find();
+    res.json(todos);
   } catch (err) {
-    res.status(500).json({ error: "Failed to fetch items." });
+    res.status(500).json({ error: "Failed to fetch todos." });
   }
 });
 
-// Get single item by ID
-app.get("/items/:id", async (req, res) => {
+// Get single todo by ID
+app.get("/todos/:id", async (req, res) => {
   try {
-    const item = await Item.findById(req.params.id);
-    if (item) {
-      res.json(item);
+    const todo = await Todo.findById(req.params.id);
+    if (todo) {
+      res.json(todo);
     } else {
-      res.status(404).json({ error: "Item not found." });
+      res.status(404).json({ error: "Todo not found." });
     }
   } catch (err) {
-    res.status(400).json({ error: "Invalid item ID." });
+    res.status(400).json({ error: "Invalid todo ID." });
   }
 });
 
-// Update item
-app.put("/items/:id", async (req, res) => {
+// Update todo
+app.put("/todos/:id", async (req, res) => {
   try {
-    const { name, description } = req.body;
+    const { text, completed } = req.body;
 
-    const updatedItem = await Item.findByIdAndUpdate(
+    const updatedTodo = await Todo.findByIdAndUpdate(
       req.params.id,
-      { name, description },
+      { text, completed },
       { new: true, runValidators: true }
     );
 
-    if (updatedItem) {
-      res.json(updatedItem);
+    if (updatedTodo) {
+      res.json(updatedTodo);
     } else {
-      res.status(404).json({ error: "Item not found." });
+      res.status(404).json({ error: "Todo not found." });
     }
   } catch (err) {
-    res.status(400).json({ error: "Invalid item ID or data." });
+    res.status(400).json({ error: "Invalid todo ID or data." });
   }
 });
 
-// Delete item
-app.delete("/items/:id", async (req, res) => {
+// Delete todo
+app.delete("/todos/:id", async (req, res) => {
   try {
-    const deletedItem = await Item.findByIdAndDelete(req.params.id);
-    if (deletedItem) {
+    const deletedTodo = await Todo.findByIdAndDelete(req.params.id);
+    if (deletedTodo) {
       res.status(204).send();
     } else {
-      res.status(404).json({ error: "Item not found." });
+      res.status(404).json({ error: "Todo not found." });
     }
   } catch (err) {
-    res.status(400).json({ error: "Invalid item ID." });
+    res.status(400).json({ error: "Invalid todo ID." });
   }
 });
 
