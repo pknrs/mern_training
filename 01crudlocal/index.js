@@ -1,75 +1,85 @@
 import express, { json } from "express";
 
 const app = express();
-
 const PORT = 3000;
 
 app.use(json());
 
-let items = [
-  { id: 1, name: "Item A", description: "This is the first item." },
-  { id: 2, name: "Item B", description: "This is the second item." },
-  { id: 3, name: "Item C", description: "This is the third item." },
+// In-memory todo store
+let todoItems = [
+  { id: 1, text: "Learn Express basics", completed: false },
+  { id: 2, text: "Build a simple CRUD API", completed: true },
+  { id: 3, text: "Practice MongoDB later", completed: false },
 ];
+
 let nextId =
-  items.length > 0 ? Math.max(...items.map((item) => item.id)) + 1 : 1;
+  todoItems.length > 0 ? Math.max(...todoItems.map((todo) => todo.id)) + 1 : 1;
 
-app.post("/items", (req, res) => {
-  const newItem = {
+// Create a new todo
+app.post("/todos", (req, res) => {
+  const newTodo = {
     id: nextId++,
-    name: req.body.name,
-    description: req.body.description,
+    text: req.body.text,
+    completed: req.body.completed ?? false,
   };
-  if (!newItem.name || !newItem.description) {
-    return res
-      .status(400)
-      .json({ error: "Name and description are required." });
+
+  if (!newTodo.text) {
+    return res.status(400).json({ error: "Text is required." });
   }
-  items.push(newItem);
-  res.status(201).json(newItem);
+
+  todoItems.push(newTodo);
+  res.status(201).json(newTodo);
 });
 
-app.get("/items", (req, res) => {
-  res.json(items);
+// Get all todos
+app.get("/todos", (req, res) => {
+  res.json(todoItems);
 });
 
-app.get("/items/:id", (req, res) => {
-  const itemId = parseInt(req.params.id, 10);
-  const item = items.find((i) => i.id === itemId);
-  if (item) {
-    res.json(item);
+// Get a single todo by ID
+app.get("/todos/:id", (req, res) => {
+  const todoId = parseInt(req.params.id, 10);
+  const todo = todoItems.find((t) => t.id === todoId);
+
+  if (todo) {
+    res.json(todo);
   } else {
-    res.status(404).json({ error: "Item not found." });
+    res.status(404).json({ error: "Todo not found." });
   }
 });
 
-app.put("/items/:id", (req, res) => {
-  const itemId = parseInt(req.params.id, 10);
-  const item = items.find((i) => i.id === itemId);
-  if (item) {
-    if (req.body.name) {
-      item.name = req.body.name;
+// Update a todo
+app.put("/todos/:id", (req, res) => {
+  const todoId = parseInt(req.params.id, 10);
+  const todo = todoItems.find((t) => t.id === todoId);
+
+  if (todo) {
+    if (req.body.text !== undefined) {
+      todo.text = req.body.text;
     }
-    if (req.body.description) {
-      item.description = req.body.description;
+    if (req.body.completed !== undefined) {
+      todo.completed = req.body.completed;
     }
-    res.json(item);
+    res.json(todo);
   } else {
-    res.status(404).json({ error: "Item not found." });
+    res.status(404).json({ error: "Todo not found." });
   }
 });
 
-app.delete("/items/:id", (req, res) => {
-  const itemId = parseInt(req.params.id, 10);
-  const itemIndex = items.findIndex((i) => i.id === itemId);
-  if (itemIndex !== -1) {
-    items.splice(itemIndex, 1);
+// Delete a todo
+app.delete("/todos/:id", (req, res) => {
+  const todoId = parseInt(req.params.id, 10);
+  const todoIndex = todoItems.findIndex((t) => t.id === todoId);
+
+  if (todoIndex !== -1) {
+    todoItems.splice(todoIndex, 1);
     res.status(204).send();
   } else {
-    res.status(404).json({ error: "Item not found." });
+    res.status(404).json({ error: "Todo not found." });
   }
 });
 
+// Start server
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
 });
