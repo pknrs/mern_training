@@ -16,10 +16,7 @@ app.use(json());
 // MongoDB connection
 // Add your MongoDB connection string in the .env file as MONGODB_URI
 mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGODB_URI)
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("MongoDB connection error:", err));
 

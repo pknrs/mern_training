@@ -1,8 +1,8 @@
+import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
 import express, { json } from "express";
-import mongoose from "mongoose";
-import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 dotenv.config();
 
@@ -41,17 +41,14 @@ const authCheck = (req, res, next) => {
 // MongoDB Connection
 // Add your MongoDB connection string in the .env file as MONGODB_URI
 mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGODB_URI)
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
 // User Schema & Model
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
-  email:    { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
 });
 
